@@ -1,0 +1,141 @@
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+OUTPUT_FILE: dirb_results.txt
+START_TIME: Wed Feb 11 02:34:39 2026
+URL_BASE: http://192.161.16.133/
+WORDLIST_FILES: /usr/share/wordlists/dirb/common.txt
+
+-----------------
+
+GENERATED WORDS: 4612
+
+---- Scanning URL: http://192.161.16.133/ ----
++ http://192.161.16.133/cgi-bin/ (CODE:403|SIZE:295)
+==> DIRECTORY: http://192.161.16.133/dav/
++ http://192.161.16.133/index (CODE:200|SIZE:891)
++ http://192.161.16.133/index.php (CODE:200|SIZE:891)
++ http://192.161.16.133/phpinfo (CODE:200|SIZE:48092)
++ http://192.161.16.133/phpinfo.php (CODE:200|SIZE:48104)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/
++ http://192.161.16.133/server-status (CODE:403|SIZE:300)
+==> DIRECTORY: http://192.161.16.133/test/
+==> DIRECTORY: http://192.161.16.133/twiki/
+
+---- Entering directory: http://192.161.16.133/dav/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/ ----
++ http://192.161.16.133/phpMyAdmin/calendar (CODE:200|SIZE:4145)
++ http://192.161.16.133/phpMyAdmin/changelog (CODE:200|SIZE:74593)
++ http://192.161.16.133/phpMyAdmin/ChangeLog (CODE:200|SIZE:40540)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/contrib/
++ http://192.161.16.133/phpMyAdmin/docs (CODE:200|SIZE:4583)
++ http://192.161.16.133/phpMyAdmin/error (CODE:200|SIZE:1063)
++ http://192.161.16.133/phpMyAdmin/export (CODE:200|SIZE:4145)
++ http://192.161.16.133/phpMyAdmin/favicon.ico (CODE:200|SIZE:18902)
++ http://192.161.16.133/phpMyAdmin/import (CODE:200|SIZE:4145)
++ http://192.161.16.133/phpMyAdmin/index (CODE:200|SIZE:4145)
++ http://192.161.16.133/phpMyAdmin/index.php (CODE:200|SIZE:4145)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/js/
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/lang/
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/libraries/
++ http://192.161.16.133/phpMyAdmin/license (CODE:200|SIZE:18011)
++ http://192.161.16.133/phpMyAdmin/LICENSE (CODE:200|SIZE:18011)
++ http://192.161.16.133/phpMyAdmin/main (CODE:200|SIZE:4227)
++ http://192.161.16.133/phpMyAdmin/navigation (CODE:200|SIZE:4145)
++ http://192.161.16.133/phpMyAdmin/phpinfo (CODE:200|SIZE:0)
++ http://192.161.16.133/phpMyAdmin/phpinfo.php (CODE:200|SIZE:0)
++ http://192.161.16.133/phpMyAdmin/phpmyadmin (CODE:200|SIZE:21389)
++ http://192.161.16.133/phpMyAdmin/print (CODE:200|SIZE:1063)
++ http://192.161.16.133/phpMyAdmin/readme (CODE:200|SIZE:2624)
++ http://192.161.16.133/phpMyAdmin/README (CODE:200|SIZE:2624)
++ http://192.161.16.133/phpMyAdmin/robots (CODE:200|SIZE:26)
++ http://192.161.16.133/phpMyAdmin/robots.txt (CODE:200|SIZE:26)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/scripts/
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/setup/
++ http://192.161.16.133/phpMyAdmin/sql (CODE:200|SIZE:4145)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/test/
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/themes/
++ http://192.161.16.133/phpMyAdmin/TODO (CODE:200|SIZE:235)
++ http://192.161.16.133/phpMyAdmin/webapp (CODE:200|SIZE:6901)
+
+---- Entering directory: http://192.161.16.133/test/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/twiki/ ----
+==> DIRECTORY: http://192.161.16.133/twiki/bin/
++ http://192.161.16.133/twiki/data (CODE:403|SIZE:297)
++ http://192.161.16.133/twiki/index (CODE:200|SIZE:782)
++ http://192.161.16.133/twiki/index.html (CODE:200|SIZE:782)
+==> DIRECTORY: http://192.161.16.133/twiki/lib/
++ http://192.161.16.133/twiki/license (CODE:200|SIZE:19440)
+==> DIRECTORY: http://192.161.16.133/twiki/pub/
++ http://192.161.16.133/twiki/readme (CODE:200|SIZE:4334)
++ http://192.161.16.133/twiki/templates (CODE:403|SIZE:302)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/contrib/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/js/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/lang/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/libraries/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/scripts/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/setup/ ----
++ http://192.161.16.133/phpMyAdmin/setup/config (CODE:303|SIZE:1373)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/setup/frames/
++ http://192.161.16.133/phpMyAdmin/setup/index (CODE:200|SIZE:8621)
++ http://192.161.16.133/phpMyAdmin/setup/index.php (CODE:200|SIZE:8629)
+==> DIRECTORY: http://192.161.16.133/phpMyAdmin/setup/lib/
++ http://192.161.16.133/phpMyAdmin/setup/scripts (CODE:200|SIZE:21967)
++ http://192.161.16.133/phpMyAdmin/setup/styles (CODE:200|SIZE:6218)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/test/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/themes/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/twiki/bin/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/twiki/lib/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/twiki/pub/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/setup/frames/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+---- Entering directory: http://192.161.16.133/phpMyAdmin/setup/lib/ ----
+(!) WARNING: Directory IS LISTABLE. No need to scan it.
+    (Use mode '-w' if you want to scan it anyway)
+
+-----------------
+END_TIME: Wed Feb 11 02:35:01 2026
+DOWNLOADED: 18448 - FOUND: 42
