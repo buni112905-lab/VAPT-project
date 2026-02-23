@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VAPT Project — Metasploitable 2</title>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; background: #0a0e1a;
+           color: #e2e8f0; margin: 0; padding: 40px 20px; }
+    h1   { font-size: 2.2rem; color: #38bdf8; margin-bottom: 8px; }
+    .sub { color: #64748b; margin-bottom: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 16px; max-width: 900px; }
+    .card { background: #111827; border: 1px solid #1e2d45; border-radius: 12px;
+            padding: 24px; text-decoration: none; color: inherit;
+            transition: border-color .2s, transform .2s; }
+    .card:hover { border-color: #38bdf8; transform: translateY(-2px); }
+    .card .num  { font-size: 11px; color: #38bdf8; letter-spacing: 2px;
+                  text-transform: uppercase; margin-bottom: 8px; }
+    .card h3    { font-size: 1.1rem; color: #fff; margin-bottom: 8px; }
+    .card p     { font-size: 13px; color: #64748b; line-height: 1.6; }
+    .card .arr  { margin-top: 16px; color: #38bdf8; font-size: 20px; }
+  </style>
+</head>
+<body>
+  <h1>VAPT Project</h1>
+  <p class="sub">Vulnerability Assessment & Penetration Testing — Metasploitable 2</p>
+  <div class="grid">
+
+    <a class="card" href="Phase1-recon/index.html">
+      <div class="num">Phase 1</div>
+      <h3>Reconnaissance</h3>
+      <p>Host discovery, OS fingerprinting, network mapping</p>
+      <div class="arr">→</div>
+    </a>
+
+    <a class="card" href="PHASE2-scanning/index.html">
+      <div class="num">Phase 2</div>
+      <h3>Scanning & Enumeration</h3>
+      <p>Nmap port scan, service detection, banner grabbing</p>
+      <div class="arr">→</div>
+    </a>
+
+    <a class="card" href="PHASE3-vuln-assesment/index.html">
+      <div class="num">Phase 3</div>
+      <h3>Vulnerability Assessment</h3>
+      <p>Nessus scan results, CVE analysis, risk ratings</p>
+      <div class="arr">→</div>
+    </a>
+
+    <a class="card" href="PHASE4-exploitation/index.html">
+      <div class="num">Phase 4</div>
+      <h3>Exploitation</h3>
+      <p>Metasploit exploits, proof-of-concept, root shells</p>
+      <div class="arr">→</div>
+    </a>
+
+    <a class="card" href="PHASE5-reporting/VAPT_Report_Metasploitable2.html">
+      <div class="num">Phase 5</div>
+      <h3>Full VAPT Report</h3>
+      <p>Complete report — all 22 findings, exploits, remediation</p>
+      <div class="arr">→</div>
+    </a>
+
+  </div>
+</body>
+</html>
